@@ -25,6 +25,27 @@ public class OperateurController {
         op2.put("prenom", "Amine");
         op2.put("matricule", "CPM002");
         operateurs.add(op2);
+
+        Map<String, Object> op3 = new HashMap<>();
+        op3.put("id", 3);
+        op3.put("nom", "SOUBAI");
+        op3.put("prenom", "Mohamed");
+        op3.put("matricule", "CPM003");
+        operateurs.add(op3);
+
+        Map<String, Object> op4 = new HashMap<>();
+        op4.put("id", 4);
+        op4.put("nom", "KHABIRI");
+        op4.put("prenom", "Abdejalile");
+        op4.put("matricule", "CPM004");
+        operateurs.add(op4);
+
+        Map<String, Object> op5 = new HashMap<>();
+        op5.put("id", 5);
+        op5.put("nom", "AYOUB");
+        op5.put("prenom", "Sami");
+        op5.put("matricule", "CPM005");
+        operateurs.add(op5);
     }
 
     @GetMapping
