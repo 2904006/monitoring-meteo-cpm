@@ -7,31 +7,14 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background: #f1f5f9;
-            min-height: 100vh;
-        }
-        .sidebar {
-            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-            min-height: 100vh;
-            transition: all 0.3s;
-        }
-        .sidebar .nav-link {
-            color: #94a3b8;
-            padding: 12px 20px;
-            margin: 4px 12px;
-            border-radius: 12px;
-            transition: all 0.2s;
-            font-weight: 500;
-        }
+        body { font-family: 'Inter', system-ui, sans-serif; background: #f1f5f9; min-height: 100vh; }
+        .sidebar { background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); min-height: 100vh; transition: all 0.3s; }
+        .sidebar .nav-link { color: #94a3b8; padding: 12px 20px; margin: 4px 12px; border-radius: 12px; transition: all 0.2s; font-weight: 500; }
         .sidebar .nav-link i { width: 28px; font-size: 1.1rem; }
         .sidebar .nav-link:hover { background: rgba(255,255,255,0.08); color: white; }
-        .sidebar .nav-link.active { background: #8b5cf6; color: white; }
+        .sidebar .nav-link.active { background: var(--role-color, #3b82f6); color: white; }
         .top-bar { background: white; border-radius: 20px; padding: 12px 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .stat-card { background: white; border-radius: 20px; padding: 20px; border: 1px solid #e2e8f0; transition: all 0.2s; }
         .stat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.08); }
@@ -40,8 +23,7 @@
         .page-content.active { display: block; }
         .btn-chef { background: linear-gradient(135deg, #8b5cf6, #7c3aed); border: none; padding: 10px 20px; border-radius: 40px; color: white; }
         .btn-employe { background: linear-gradient(135deg, #3b82f6, #2563eb); border: none; padding: 10px 20px; border-radius: 40px; color: white; }
-        .btn-export { background: linear-gradient(135deg, #10b981, #059669); border: none; padding: 10px 20px; border-radius: 40px; color: white; }
-        .role-badge { padding: 6px 14px; border-radius: 40px; font-size: 0.8rem; font-weight: 600; }
+        .role-badge { padding: 6px 14px; border-radius: 40px; font-size: 0.8rem; font-weight: 600; display: inline-block; }
         .quality-gauge { text-align: center; padding: 15px; }
         .gauge-value { font-size: 48px; font-weight: 700; }
         .gauge-bar { background: #e2e8f0; border-radius: 12px; height: 12px; overflow: hidden; }
@@ -62,9 +44,9 @@
                 <div class="text-center mb-4 mt-2">
                     <i class="fas fa-cloud-sun fa-2x text-white"></i>
                     <h5 class="text-white mt-2 mb-0">CPM Essaouira</h5>
-                    <span class="role-badge mt-2 d-inline-block" id="roleBadge" style="background: #8b5cf6;">Chargement...</span>
+                    <span class="role-badge mt-2" id="roleBadge">Chargement...</span>
                 </div>
-                <nav class="nav flex-column" id="mainNav">
+                <nav class="nav flex-column">
                     <a href="#" class="nav-link active" data-page="dashboard">
                         <i class="fas fa-chart-pie"></i> <span>Tableau de bord</span>
                     </a>
@@ -77,7 +59,7 @@
                     <a href="#" class="nav-link" data-page="statistiques">
                         <i class="fas fa-chart-line"></i> <span>Statistiques</span>
                     </a>
-                    <a href="#" class="nav-link" data-page="administration" id="adminMenu" style="display:none;">
+                    <a href="#" class="nav-link" data-page="administration" id="adminMenu">
                         <i class="fas fa-users-gear"></i> <span>Administration</span>
                     </a>
                     <hr class="my-2" style="border-color: #334155;">
@@ -97,11 +79,6 @@
                         <h4 class="mb-0" id="pageTitle">Tableau de bord</h4>
                         <p class="text-muted small mb-0" id="userWelcome"></p>
                     </div>
-                    <div>
-                        <button class="btn btn-export text-white" id="exportPDFBtn" style="display:none;">
-                            <i class="fas fa-file-pdf me-2"></i>Exporter PDF
-                        </button>
-                    </div>
                 </div>
 
                 <!-- Page Dashboard -->
@@ -113,8 +90,8 @@
                         <div class="col-md-3"><div class="stat-card"><div class="d-flex justify-content-between"><div><p class="text-muted mb-1 small">Non transmis</p><h2 class="mb-0 text-danger" id="totalNonTransmis">0</h2></div><div class="bg-danger bg-opacity-10 text-danger p-2 rounded-3"><i class="fas fa-circle-exclamation"></i></div></div></div></div>
                     </div>
                     <div class="row g-4">
-                        <div class="col-md-7"><div class="content-card"><h5><i class="fas fa-chart-line me-2 text-primary"></i>Évolution quotidienne (7 jours)</h5><canvas id="dailyChart" height="200"></canvas></div></div>
-                        <div class="col-md-5"><div class="content-card"><h5><i class="fas fa-chart-pie me-2 text-primary"></i>Répartition des transmissions</h5><canvas id="repartitionChart" height="200"></canvas></div></div>
+                        <div class="col-md-7"><div class="content-card"><h5><i class="fas fa-chart-line me-2 text-primary"></i>Évolution quotidienne</h5><canvas id="dailyChart" height="200"></canvas></div></div>
+                        <div class="col-md-5"><div class="content-card"><h5><i class="fas fa-chart-pie me-2 text-primary"></i>Répartition</h5><canvas id="repartitionChart" height="200"></canvas></div></div>
                     </div>
                     <div class="row g-4 mt-2">
                         <div class="col-md-6"><div class="content-card"><h5><i class="fas fa-tachometer-alt me-2 text-primary"></i>Indice de qualité</h5><div class="quality-gauge"><div class="gauge-value" id="qualityScore">0%</div><div class="gauge-bar mt-2"><div class="gauge-fill" id="qualityFill" style="width:0%"></div></div><p id="qualityLabel" class="mt-3 mb-0"></p></div></div></div>
@@ -122,7 +99,7 @@
                     </div>
                 </div>
 
-                <!-- Page Saisie -->
+                <!-- Page Saisie (visible seulement pour employé) -->
                 <div id="page-saisie" class="page-content">
                     <div class="content-card"><h5><i class="fas fa-pen-to-square me-2"></i>Enregistrer une transmission</h5>
                         <form id="transmissionForm" class="mt-4">
@@ -170,110 +147,72 @@
     </div>
 
     <script>
-        // ==================== VARIABLES GLOBALES ====================
         let currentUser = null;
         let currentRole = null;
         let chartDaily = null;
         let chartRepartition = null;
 
-        // ==================== INITIALISATION ====================
         document.addEventListener('DOMContentLoaded', async () => {
             const userStr = localStorage.getItem('user');
-            if (!userStr) {
-                window.location.href = '/login.html';
-                return;
-            }
+            if (!userStr) { window.location.href = '/login.html'; return; }
             
             currentUser = JSON.parse(userStr);
             currentRole = currentUser.role;
             
-            console.log('Current user:', currentUser);
-            
-            // Appliquer le thème selon le rôle
+            const root = document.documentElement;
             if (currentRole === 'chef') {
+                root.style.setProperty('--role-color', '#8b5cf6');
                 document.getElementById('roleBadge').innerHTML = '👑 Chef de centre';
                 document.getElementById('roleBadge').style.background = '#8b5cf6';
                 document.getElementById('adminMenu').style.display = 'block';
+                // ⚠️ CACHER la saisie pour le chef
                 document.getElementById('saisieMenu').style.display = 'none';
-                document.getElementById('exportPDFBtn').style.display = 'block';
-                // Changer la couleur du bouton actif
-                document.querySelector('.sidebar .nav-link.active').style.background = '#8b5cf6';
             } else {
+                root.style.setProperty('--role-color', '#3b82f6');
                 document.getElementById('roleBadge').innerHTML = '👥 Employé';
                 document.getElementById('roleBadge').style.background = '#3b82f6';
                 document.getElementById('adminMenu').style.display = 'none';
+                // ✅ AFFICHER la saisie pour l'employé
                 document.getElementById('saisieMenu').style.display = 'block';
-                document.getElementById('exportPDFBtn').style.display = 'none';
-                document.querySelector('.sidebar .nav-link.active').style.background = '#3b82f6';
             }
             
             document.getElementById('userWelcome').innerHTML = `<i class="fas fa-user-circle me-1"></i>${currentUser.name || currentUser.username} · ${currentRole === 'chef' ? 'Chef de centre' : 'Employé'}`;
             
-            // Navigation
             document.querySelectorAll('.nav-link[data-page]').forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
-                    const page = link.dataset.page;
-                    showPage(page);
+                    showPage(link.dataset.page);
                 });
             });
             
-            // Déconnexion
             document.getElementById('logoutBtn').addEventListener('click', (e) => {
                 e.preventDefault();
                 localStorage.removeItem('user');
                 window.location.href = '/login.html';
             });
             
-            // Chargement initial
             await loadTypesMessage();
             await loadCauses5M();
             await loadOperateurs();
             await loadOperateursFilter();
             await loadDashboard();
+            await loadTransmissions();
+            await loadStatistiques();
             
-            // Formulaire transmission
-            const form = document.getElementById('transmissionForm');
-            if (form) {
-                form.addEventListener('submit', submitTransmission);
-            }
+            document.getElementById('transmissionForm')?.addEventListener('submit', submitTransmission);
+            document.getElementById('etat')?.addEventListener('change', toggleCauseField);
+            document.getElementById('addOperateurForm')?.addEventListener('submit', submitOperateur);
             
-            const etatSelect = document.getElementById('etat');
-            if (etatSelect) {
-                etatSelect.addEventListener('change', toggleCauseField);
-            }
-            
-            // Formulaire ajout opérateur
-            const addForm = document.getElementById('addOperateurForm');
-            if (addForm) {
-                addForm.addEventListener('submit', submitOperateur);
-            }
-            
-            // Date par défaut
             const dateInput = document.getElementById('date_transmission');
             if (dateInput) dateInput.valueAsDate = new Date();
         });
 
-        // ==================== NAVIGATION ====================
         function showPage(pageName) {
-            document.querySelectorAll('.page-content').forEach(page => {
-                page.classList.remove('active');
-            });
-            const targetPage = document.getElementById(`page-${pageName}`);
-            if (targetPage) targetPage.classList.add('active');
+            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+            const target = document.getElementById(`page-${pageName}`);
+            if (target) target.classList.add('active');
             
-            document.querySelectorAll('.nav-link[data-page]').forEach(link => {
-                link.classList.remove('active');
-                if (link.dataset.page === pageName) link.classList.add('active');
-            });
-            
-            const titles = {
-                dashboard: 'Tableau de bord',
-                saisie: 'Nouvelle transmission',
-                consultation: 'Consultation',
-                statistiques: 'Statistiques',
-                administration: 'Administration'
-            };
+            const titles = { dashboard: 'Tableau de bord', saisie: 'Nouvelle transmission', consultation: 'Consultation', statistiques: 'Statistiques', administration: 'Administration' };
             document.getElementById('pageTitle').innerText = titles[pageName] || pageName;
             
             if (pageName === 'dashboard') loadDashboard();
@@ -282,7 +221,6 @@
             if (pageName === 'administration' && currentRole === 'chef') loadOperateurs();
         }
 
-        // ==================== DASHBOARD ====================
         async function loadDashboard() {
             try {
                 const response = await fetch('/api/dashboard');
@@ -298,11 +236,10 @@
                     const score = Math.round((data.total7Jours.a_leure / total) * 100);
                     document.getElementById('qualityScore').innerText = `${score}%`;
                     document.getElementById('qualityFill').style.width = `${score}%`;
-                    
-                    if (score >= 90) document.getElementById('qualityLabel').innerHTML = '<i class="fas fa-star text-warning"></i> Qualité excellente';
-                    else if (score >= 75) document.getElementById('qualityLabel').innerHTML = '<i class="fas fa-thumbs-up text-success"></i> Bonne qualité';
-                    else if (score >= 60) document.getElementById('qualityLabel').innerHTML = '<i class="fas fa-chart-line text-warning"></i> Qualité moyenne';
-                    else document.getElementById('qualityLabel').innerHTML = '<i class="fas fa-exclamation-triangle text-danger"></i> Qualité insuffisante';
+                    if (score >= 90) document.getElementById('qualityLabel').innerHTML = '<i class="fas fa-star text-warning"></i> Excellente';
+                    else if (score >= 75) document.getElementById('qualityLabel').innerHTML = '<i class="fas fa-thumbs-up text-success"></i> Bonne';
+                    else if (score >= 60) document.getElementById('qualityLabel').innerHTML = '<i class="fas fa-chart-line text-warning"></i> Moyenne';
+                    else document.getElementById('qualityLabel').innerHTML = '<i class="fas fa-exclamation-triangle text-danger"></i> Insuffisante';
                 }
                 
                 if (data.performanceOperateurs && data.performanceOperateurs.length > 0) {
@@ -314,22 +251,20 @@
                 }
                 
                 if (data.historiqueQuotidien && data.historiqueQuotidien.length > 0) {
-                    const labels = data.historiqueQuotidien.map(d => d.date).reverse();
-                    const aLeure = data.historiqueQuotidien.map(d => d.a_leure).reverse();
-                    const retards = data.historiqueQuotidien.map(d => d.retard).reverse();
-                    
+                    const labels = data.historiqueQuotidien.map(d => d.date);
+                    const aLeure = data.historiqueQuotidien.map(d => d.a_leure);
+                    const retards = data.historiqueQuotidien.map(d => d.retard);
                     if (chartDaily) chartDaily.destroy();
                     const ctx = document.getElementById('dailyChart').getContext('2d');
                     chartDaily = new Chart(ctx, {
                         type: 'line',
-                        data: { labels: labels, datasets: [{ label: 'À l\'heure', data: aLeure, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.3 }, { label: 'Retards', data: retards, borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.1)', fill: true, tension: 0.3 }] },
-                        options: { responsive: true, maintainAspectRatio: true }
+                        data: { labels, datasets: [{ label: 'À l\'heure', data: aLeure, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.3 }, { label: 'Retards', data: retards, borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.1)', fill: true, tension: 0.3 }] },
+                        options: { responsive: true }
                     });
                     
                     const aLeureTotal = data.total7Jours?.a_leure || 0;
                     const retardTotal = data.total7Jours?.retard || 0;
                     const nonTransmisTotal = data.total7Jours?.non_transmis || 0;
-                    
                     if (chartRepartition) chartRepartition.destroy();
                     const ctxPie = document.getElementById('repartitionChart').getContext('2d');
                     chartRepartition = new Chart(ctxPie, {
@@ -338,45 +273,31 @@
                         options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
                     });
                 }
-            } catch (error) {
-                console.error('Erreur dashboard:', error);
-            }
+            } catch (error) { console.error(error); }
         }
 
-        // ==================== TRANSMISSIONS ====================
         async function loadTransmissions() {
             const debut = document.getElementById('filterDebut')?.value || '';
             const fin = document.getElementById('filterFin')?.value || '';
             const operateur_id = document.getElementById('filterOperateur')?.value || '';
-            
             let url = '/api/transmissions?';
             if (debut) url += `debut=${debut}&`;
             if (fin) url += `fin=${fin}&`;
-            if (operateur_id && currentRole === 'chef') url += `operateur_id=${operateur_id}&`;
-            
+            if (operateur_id) url += `operateur_id=${operateur_id}&`;
             try {
-                const response = await fetch(url);
-                const data = await response.json();
-                
+                const res = await fetch(url);
+                const data = await res.json();
                 const tbody = document.getElementById('consultationBody');
                 tbody.innerHTML = '';
-                
                 data.forEach(t => {
-                    let etatHtml = '';
-                    if (t.etat === 'A_LEURE') etatHtml = '<span class="badge bg-success"><i class="fas fa-check me-1"></i>À l\'heure</span>';
-                    else if (t.etat === 'RETARD') etatHtml = '<span class="badge bg-warning"><i class="fas fa-clock me-1"></i>Retard</span>';
-                    else etatHtml = '<span class="badge bg-danger"><i class="fas fa-circle-exclamation me-1"></i>Non transmis</span>';
-                    
+                    let etatHtml = t.etat === 'A_LEURE' ? '<span class="badge bg-success">✅ À l\'heure</span>' : (t.etat === 'RETARD' ? '<span class="badge bg-warning">⏰ Retard</span>' : '<span class="badge bg-danger">❌ Non transmis</span>');
                     tbody.innerHTML += `<tr><td>${t.date_transmission}</td><td>${t.heure_prevue}</td><td>${t.heure_reelle || '-'}</td><td><span class="badge bg-secondary">${t.type_code}</span></td><td><i class="fas fa-user-circle me-1"></i>${t.operateur_nom || ''} ${t.operateur_prenom || ''}</td><td>${etatHtml}</td><td>${t.cause_libelle || '-'}</td></tr>`;
                 });
-            } catch (error) {
-                console.error('Erreur:', error);
-            }
+            } catch (error) { console.error(error); }
         }
 
         async function submitTransmission(e) {
             e.preventDefault();
-            
             const data = {
                 date_transmission: document.getElementById('date_transmission').value,
                 heure_prevue: document.getElementById('heure_prevue').value,
@@ -387,181 +308,93 @@
                 cause_5m_id: document.getElementById('cause_5m_id').value ? parseInt(document.getElementById('cause_5m_id').value) : null,
                 commentaire: document.getElementById('commentaire').value || null
             };
-            
             try {
-                const response = await fetch('/api/transmissions', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
+                const res = await fetch('/api/transmissions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+                const result = await res.json();
                 const msgDiv = document.getElementById('saisieMessage');
-                
-                if (response.ok) {
-                    msgDiv.innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Transmission enregistrée</div>';
+                if (res.ok) {
+                    msgDiv.innerHTML = '<div class="alert alert-success">✅ Transmission enregistrée</div>';
                     document.getElementById('transmissionForm').reset();
                     document.getElementById('date_transmission').valueAsDate = new Date();
+                    loadTransmissions(); loadDashboard(); loadStatistiques();
                     setTimeout(() => msgDiv.innerHTML = '', 3000);
-                } else {
-                    msgDiv.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>${result.error}</div>`;
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-            }
+                } else msgDiv.innerHTML = `<div class="alert alert-danger">❌ ${result.error}</div>`;
+            } catch (error) { console.error(error); }
         }
 
         function toggleCauseField() {
             const etat = document.getElementById('etat').value;
-            const causeGroup = document.getElementById('causeGroup');
-            causeGroup.style.display = (etat !== 'A_LEURE') ? 'block' : 'none';
+            document.getElementById('causeGroup').style.display = (etat !== 'A_LEURE') ? 'block' : 'none';
         }
 
-        // ==================== STATISTIQUES ====================
         async function loadStatistiques() {
             const annee = document.getElementById('statAnnee').value;
             const mois = document.getElementById('statMois').value;
-            
             try {
-                const response = await fetch(`/api/stats/mensuel/${annee}/${mois}`);
-                const data = await response.json();
-                
+                const res = await fetch(`/api/stats/mensuel/${annee}/${mois}`);
+                const data = await res.json();
                 const tbody = document.getElementById('statBody');
                 tbody.innerHTML = '';
-                
+                if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center">Aucune donnée</td></tr>'; return; }
                 data.forEach(stat => {
                     tbody.innerHTML += `<tr><td><i class="fas fa-user-circle me-1"></i>${stat.nom} ${stat.prenom}</td><td>${stat.total}</td><td class="text-success">${stat.bien_transmis || 0}</td><td class="text-warning">${stat.transmis_retard || 0}</td><td class="text-danger">${stat.non_transmis || 0}</td><td><span class="badge ${(stat.taux_conformite || 0) >= 80 ? 'bg-success' : (stat.taux_conformite || 0) >= 60 ? 'bg-warning' : 'bg-danger'}">${stat.taux_conformite || 0}%</span></td></tr>`;
                 });
-            } catch (error) {
-                console.error('Erreur:', error);
-            }
+            } catch (error) { console.error(error); }
         }
 
-        // ==================== ADMINISTRATION ====================
         async function loadOperateurs() {
             try {
-                const response = await fetch('/api/operateurs');
-                const data = await response.json();
-                
+                const res = await fetch('/api/operateurs');
+                const data = await res.json();
                 const tbody = document.getElementById('operateursBody');
                 tbody.innerHTML = '';
-                
                 data.forEach(op => {
                     tbody.innerHTML += `<tr><td>${op.id}</td><td>${op.nom}</td><td>${op.prenom || '-'}</td><td>${op.matricule || '-'}</td><td><button class="btn btn-sm btn-danger" onclick="deleteOperateur(${op.id})"><i class="fas fa-trash-can"></i> Supprimer</button></td></tr>`;
                 });
-            } catch (error) {
-                console.error('Erreur:', error);
-            }
+            } catch (error) { console.error(error); }
         }
 
         async function submitOperateur(e) {
             e.preventDefault();
-            
-            const data = {
-                nom: document.getElementById('newNom').value,
-                prenom: document.getElementById('newPrenom').value,
-                matricule: document.getElementById('newMatricule').value
-            };
-            
-            try {
-                await fetch('/api/operateurs', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                loadOperateurs();
-                loadOperateursFilter();
-                document.getElementById('addOperateurForm').reset();
-            } catch (error) {
-                console.error('Erreur:', error);
-            }
+            const data = { nom: document.getElementById('newNom').value, prenom: document.getElementById('newPrenom').value, matricule: document.getElementById('newMatricule').value };
+            await fetch('/api/operateurs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+            loadOperateurs(); loadOperateursFilter();
+            document.getElementById('addOperateurForm').reset();
         }
 
         async function deleteOperateur(id) {
             if (confirm('Supprimer cet opérateur ?')) {
                 await fetch(`/api/operateurs/${id}`, { method: 'DELETE' });
-                loadOperateurs();
-                loadOperateursFilter();
+                loadOperateurs(); loadOperateursFilter();
             }
         }
 
-        // ==================== CHARGEMENT DES LISTES ====================
         async function loadTypesMessage() {
-            const response = await fetch('/api/types-message');
-            const data = await response.json();
+            const res = await fetch('/api/types-message');
+            const data = await res.json();
             const select = document.getElementById('type_message_id');
-            if (select) {
-                select.innerHTML = '';
-                data.forEach(type => {
-                    select.innerHTML += `<option value="${type.id}">${type.code} - ${type.libelle}</option>`;
-                });
-            }
+            if (select) { select.innerHTML = ''; data.forEach(t => select.innerHTML += `<option value="${t.id}">${t.code} - ${t.libelle}</option>`); }
         }
 
         async function loadCauses5M() {
-            const response = await fetch('/api/causes-5m');
-            const data = await response.json();
+            const res = await fetch('/api/causes-5m');
+            const data = await res.json();
             const select = document.getElementById('cause_5m_id');
-            if (select) {
-                select.innerHTML = '<option value="">Sélectionner une cause</option>';
-                data.forEach(cause => {
-                    select.innerHTML += `<option value="${cause.id}">${cause.code} - ${cause.libelle}</option>`;
-                });
-            }
+            if (select) { select.innerHTML = '<option value="">Sélectionner une cause</option>'; data.forEach(c => select.innerHTML += `<option value="${c.id}">${c.code} - ${c.libelle}</option>`); }
         }
 
         async function loadOperateursFilter() {
-            const response = await fetch('/api/operateurs');
-            const data = await response.json();
-            
+            const res = await fetch('/api/operateurs');
+            const data = await res.json();
             const selectForm = document.getElementById('operateur_id');
-            if (selectForm) {
-                selectForm.innerHTML = '';
-                data.forEach(op => {
-                    selectForm.innerHTML += `<option value="${op.id}">${op.nom} ${op.prenom}</option>`;
-                });
-            }
-            
+            if (selectForm) { selectForm.innerHTML = ''; data.forEach(op => selectForm.innerHTML += `<option value="${op.id}">${op.nom} ${op.prenom}</option>`); }
             const filterSelect = document.getElementById('filterOperateur');
-            if (filterSelect && currentRole === 'chef') {
-                filterSelect.innerHTML = '<option value="">Tous les opérateurs</option>';
-                data.forEach(op => {
-                    filterSelect.innerHTML += `<option value="${op.id}">${op.nom} ${op.prenom}</option>`;
-                });
-            }
+            if (filterSelect) { filterSelect.innerHTML = '<option value="">Tous les opérateurs</option>'; data.forEach(op => filterSelect.innerHTML += `<option value="${op.id}">${op.nom} ${op.prenom}</option>`); }
         }
 
-        // ==================== EXPORT PDF ====================
-        async function exportDashboardToPDF() {
-            const { jsPDF } = window.jspdf;
-            const btn = document.getElementById('exportPDFBtn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Génération...';
-            btn.disabled = true;
-            
-            try {
-                const element = document.getElementById('page-dashboard');
-                const canvas = await html2canvas(element, { scale: 2, backgroundColor: '#ffffff' });
-                const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const imgWidth = 210;
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-                pdf.save(`rapport_cpm_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.pdf`);
-            } catch (error) {
-                console.error('Erreur PDF:', error);
-                alert('Erreur lors de la génération du PDF');
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        }
-        
-        // Exposer les fonctions globalement pour les boutons onclick
         window.loadTransmissions = loadTransmissions;
         window.loadStatistiques = loadStatistiques;
         window.deleteOperateur = deleteOperateur;
-        window.exportDashboardToPDF = exportDashboardToPDF;
     </script>
 </body>
 </html>

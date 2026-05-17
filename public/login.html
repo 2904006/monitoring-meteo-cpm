@@ -71,23 +71,7 @@
             transition: all 0.3s;
         }
         .btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(30,60,114,0.4); }
-        .credential-hint {
-            background: #f8fafc;
-            border-radius: 20px;
-            padding: 15px;
-            margin-top: 20px;
-        }
         .alert-danger { border-radius: 16px; }
-        .debug-info {
-            background: #1e293b;
-            color: #a0aec0;
-            font-family: monospace;
-            font-size: 11px;
-            padding: 10px;
-            border-radius: 12px;
-            margin-top: 15px;
-            word-break: break-all;
-        }
     </style>
 </head>
 <body>
@@ -111,7 +95,7 @@
                 
                 <form id="loginForm">
                     <div class="mb-3">
-                        <input type="text" class="form-control form-control-lg" id="username" placeholder="Identifiant" required autocomplete="off">
+                        <input type="text" class="form-control form-control-lg" id="username" placeholder="Identifiant" required>
                     </div>
                     <div class="mb-4">
                         <input type="password" class="form-control form-control-lg" id="password" placeholder="Mot de passe" required>
@@ -119,31 +103,8 @@
                     <button type="submit" class="btn-login">
                         <i class="fas fa-arrow-right-to-bracket me-2"></i>Se connecter
                     </button>
-                    <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <span></span>
-                    </div>
+                    <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;"></div>
                 </form>
-                
-                <div class="credential-hint">
-                    <div class="small text-muted mb-2">
-                        <i class="fas fa-info-circle me-1"></i> Identifiants de test
-                    </div>
-                    <div id="chefHint" class="small">
-                        <strong>👑 Chef :</strong> admin / admin123
-                    </div>
-                    <div id="employeHint" style="display:none;" class="small">
-                        <strong>👥 Employés :</strong><br>
-                        kassimi / meteo2026<br>
-                        soubai / meteo2026<br>
-                        khabiri / meteo2026<br>
-                        ayoub / meteo2026
-                    </div>
-                </div>
-                
-                <div class="debug-info" id="debugInfo">
-                    🔧 Mode debug - Vérifiez la console du terminal
-                </div>
             </div>
         </div>
     </div>
@@ -152,73 +113,73 @@
         let selectedRole = 'chef';
         
         // Sélection du rôle
-        document.querySelectorAll('.role-tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                selectedRole = tab.dataset.role;
-                
-                document.getElementById('chefHint').style.display = selectedRole === 'chef' ? 'block' : 'none';
-                document.getElementById('employeHint').style.display = selectedRole === 'employe' ? 'block' : 'none';
+        const roleTabs = document.querySelectorAll('.role-tab');
+        
+        if (roleTabs) {
+            roleTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    roleTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    selectedRole = tab.dataset.role;
+                });
             });
-        });
+        }
         
         // Formulaire de connexion
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const username = document.getElementById('username').value.trim().toLowerCase();
-            const password = document.getElementById('password').value;
-            const errorDiv = document.getElementById('errorMessage');
-            const errorSpan = errorDiv.querySelector('span');
-            const debugInfo = document.getElementById('debugInfo');
-            
-            // Réinitialiser l'erreur
-            errorDiv.style.display = 'none';
-            
-            if (!username || !password) {
-                errorSpan.textContent = 'Veuillez remplir tous les champs';
-                errorDiv.style.display = 'block';
-                return;
-            }
-            
-            debugInfo.innerHTML = `⏳ Connexion en cours... (${username} / ${selectedRole})`;
-            
-            try {
-                const payload = { username, password, role: selectedRole };
-                console.log('Envoi requête:', payload);
-                debugInfo.innerHTML = `📤 Envoi: ${JSON.stringify(payload)}`;
+        const loginForm = document.getElementById('loginForm');
+        const errorDiv = document.getElementById('errorMessage');
+        
+        if (loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
                 
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+                const username = document.getElementById('username').value.trim().toLowerCase();
+                const password = document.getElementById('password').value;
                 
-                const data = await response.json();
-                console.log('Réponse:', data);
-                debugInfo.innerHTML = `📥 Réponse: ${JSON.stringify(data)}`;
-                
-                if (data.success) {
-                    localStorage.setItem('user', JSON.stringify({
-                        username: username,
-                        role: data.role,
-                        name: data.name
-                    }));
-                    debugInfo.innerHTML = `✅ Connexion réussie! Redirection...`;
-                    window.location.href = '/dashboard.html';
-                } else {
-                    errorSpan.textContent = data.error || 'Identifiants incorrects';
-                    errorDiv.style.display = 'block';
-                    debugInfo.innerHTML = `❌ Erreur: ${data.error}`;
+                if (errorDiv) {
+                    errorDiv.style.display = 'none';
+                    errorDiv.innerHTML = '';
                 }
-            } catch (error) {
-                console.error('Erreur:', error);
-                errorSpan.textContent = 'Erreur de connexion au serveur';
-                errorDiv.style.display = 'block';
-                debugInfo.innerHTML = `❌ Exception: ${error.message}`;
-            }
-        });
+                
+                if (!username || !password) {
+                    if (errorDiv) {
+                        errorDiv.innerHTML = 'Veuillez remplir tous les champs';
+                        errorDiv.style.display = 'block';
+                    }
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password, role: selectedRole })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        localStorage.setItem('user', JSON.stringify({
+                            username: username,
+                            role: data.role,
+                            name: data.name
+                        }));
+                        window.location.href = '/dashboard.html';
+                    } else {
+                        if (errorDiv) {
+                            errorDiv.innerHTML = data.error || 'Identifiants incorrects';
+                            errorDiv.style.display = 'block';
+                        }
+                    }
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    if (errorDiv) {
+                        errorDiv.innerHTML = 'Erreur de connexion au serveur';
+                        errorDiv.style.display = 'block';
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>
